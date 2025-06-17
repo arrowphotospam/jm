@@ -1,0 +1,205 @@
+session-1, q-1
+
+using System;
+
+
+public sealed class Logger
+{
+    private static Logger instance = null;
+    private static readonly object lockObject = new object();
+    private Logger()
+    {
+
+    }
+
+    public static Logger Instance
+    {
+        get{
+            lock(lockObject)
+            {
+                if(instance==null)
+                {
+                    instance = new Logger();
+                }
+                return instance;
+            }
+        }
+    }
+    private int logCount=0;
+
+    public void Log(string message) => Console.WriteLine("[Log]: "+message);
+    public void GetLogCount(string message)
+    {
+        logCount++;
+        Console.WriteLine($"[Log {logCount}]: {message}");
+        Console.WriteLine("Log count: "+logCount);
+    }
+
+}
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        while(true)
+        {
+            string input = Console.ReadLine();
+            if(input=="exit")
+            {
+                break;
+            }
+            Logger.Instance.GetLogCount(input);
+        }
+        
+    }
+}
+Session-1 q-2
+
+using System;
+
+public sealed class UserSingleton
+{
+    private static UserSingleton instance = null;
+    private static readonly object lockObject = new object();
+    private int accessCounter;
+
+    // Private constructor to prevent external instantiation
+    private UserSingleton()
+    {
+        accessCounter = 0;
+    }
+
+    // Public static property to get the singleton instance
+    public static UserSingleton Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                lock (lockObject)
+                {
+                    if (instance == null)
+                    {
+                        instance = new UserSingleton();
+                    }
+                }
+            }
+            return instance;
+        }
+    }
+
+    // Public method to get the current access counter
+    public int GetAccessCounter()
+    {
+        return accessCounter;
+    }
+
+    // Public method to increment the access counter
+    public void IncrementAccessCounter()
+    {
+        accessCounter++;
+    }
+
+    // Public method to display a greeting message
+    public void DisplayGreeting(string username)
+    {
+        Console.WriteLine($"Welcome, {username}!");
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        
+        string username = Console.ReadLine();
+
+        UserSingleton userSingleton = UserSingleton.Instance;
+
+        // Increment access counter twice
+        userSingleton.IncrementAccessCounter();
+        userSingleton.IncrementAccessCounter();
+
+        // Display access counter
+        Console.WriteLine($"Access Counter: {userSingleton.GetAccessCounter()}");
+
+        // Display greeting
+        userSingleton.DisplayGreeting(username);
+    }
+}
+
+
+s-1q-3
+Session-1 q-3
+using System;
+using System.Collections.Generic;
+
+public sealed class Logger
+{
+    private static Logger instance = null;
+    private static readonly object lockObject = new object();
+    private List<string> logMessages;
+
+    // Private constructor
+    private Logger()
+    {
+        logMessages = new List<string>();
+    }
+
+    // Public property for Singleton instance with double-checked locking
+    public static Logger Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                lock (lockObject)
+                {
+                    if (instance == null)
+                    {
+                        instance = new Logger();
+                    }
+                }
+            }
+            return instance;
+        }
+    }
+
+    // Method to log a message
+    public void LogMessage(string message)
+    {
+        logMessages.Add(message);
+        Console.WriteLine($"Logging message: {message}");
+    }
+
+    // Method to display all log messages
+    public void DisplayLogMessages()
+    {
+        Console.WriteLine("Log Messages:");
+        foreach (string msg in logMessages)
+        {
+            Console.WriteLine(msg);
+        }
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        // Read number of log messages
+        int n = int.Parse(Console.ReadLine());
+
+        // Get the singleton logger instance
+        Logger logger = Logger.Instance;
+
+        // Read and log each message
+        for (int i = 0; i < n; i++)
+        {
+            string message = Console.ReadLine();
+            logger.LogMessage(message);
+        }
+
+        // Display all logged messages
+        logger.DisplayLogMessages();
+    }
+}
