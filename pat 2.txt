@@ -1,126 +1,158 @@
-// ======= Models/Book.cs =======
-namespace domaindriven.Models
+Student.cs
+namespace StudentLibrary.Models
 {
-    public class Book
+    public class Student
     {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public string Grade { get; set; }
+        public string Major { get; set; }
     }
 }
-
-// ======= BusinessLayer/BookValidator.cs =======
+BusinessLayer
+using StudentLibrary.Models;
 using System;
-using domaindriven.Models;
 
-namespace domaindriven.BusinessLayer
+namespace StudentLibrary
 {
-    public static class BookValidator
+    public static class BusinessLayer
     {
-        public static void Validate(Book book)
+        public static void ValidateStudentData(Student student)
         {
-            if (string.IsNullOrWhiteSpace(book.Title))
-                throw new ArgumentException("Title is required");
+            if (string.IsNullOrWhiteSpace(student.Name))
+            {
+                throw new ArgumentException("Name is required");
+            }
 
-            if (string.IsNullOrWhiteSpace(book.Author))
-                throw new ArgumentException("Author is required");
+            if (student.Age <= 0)
+            {
+                Console.WriteLine("Invalid age.");
+            }
+
+            if (string.IsNullOrWhiteSpace(student.Grade))
+            {
+                Console.WriteLine("Grade is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(student.Major))
+            {
+                Console.WriteLine("Major is required.");
+            }
         }
     }
 }
-
-// ======= DataAccessLayer/BookRepository.cs =======
+DataAcessLayer
+using StudentLibrary.Models;
 using System.Collections.Generic;
 using System.Linq;
-using domaindriven.Models;
 
-namespace domaindriven.DataAccessLayer
+namespace StudentLibrary
 {
-    public static class BookRepository
+    public static class DataAccessLayer
     {
-        private static List<Book> books = new List<Book>();
+        private static List<Student> students = new List<Student>();
         private static int nextId = 1;
 
-        public static void Add(Book book)
+        public static void AddStudent(Student student)
         {
-            book.Id = nextId++;
-            books.Add(book);
+            student.Id = nextId++;
+            students.Add(student);
         }
 
-        public static void Edit(Book book)
+        public static void EditStudent(Student student)
         {
-            var existing = books.FirstOrDefault(b => b.Id == book.Id);
+            var existing = students.FirstOrDefault(s => s.Id == student.Id);
             if (existing != null)
             {
-                existing.Title = book.Title;
-                existing.Author = book.Author;
+                existing.Name = student.Name;
+                existing.Age = student.Age;
+                existing.Grade = student.Grade;
+                existing.Major = student.Major;
             }
         }
 
-        public static List<Book> GetAll() => books;
-
-        public static List<Book> Find(string keyword)
+        public static List<Student> GetAllStudents()
         {
-            return books.Where(b =>
-                b.Title.Contains(keyword, System.StringComparison.OrdinalIgnoreCase) ||
-                b.Author.Contains(keyword, System.StringComparison.OrdinalIgnoreCase)).ToList();
+            return students;
         }
 
-        public static void Delete(int id)
+        public static List<Student> FindStudents(string keyword)
         {
-            var book = books.FirstOrDefault(b => b.Id == id);
-            if (book != null)
-                books.Remove(book);
+            return students.Where(s =>
+                s.Name.Contains(keyword) ||
+                s.Grade.Contains(keyword) ||
+                s.Major.Contains(keyword)).ToList();
         }
 
-        public static bool Exists(int id) => books.Any(b => b.Id == id);
+        public static void DeleteStudent(int studentId)
+        {
+            var student = students.FirstOrDefault(s => s.Id == studentId);
+            if (student != null)
+            {
+                students.Remove(student);
+            }
+        }
     }
 }
-
-// ======= ConsoleApp.cs =======
+Program.cs
+using StudentLibrary;
+using StudentLibrary.Models;
 using System;
-using domaindriven.Models;
-using domaindriven.BusinessLayer;
-using domaindriven.DataAccessLayer;
 
-namespace domaindriven
+namespace StudentApp
 {
-    public class ConsoleApp
+    class Program
     {
-        public void Run()
+        static void Main()
         {
             while (true)
             {
                 Console.WriteLine("\nMenu:");
-                Console.WriteLine("1. Add Book");
-                Console.WriteLine("2. Edit Book");
-                Console.WriteLine("3. List Books");
-                Console.WriteLine("4. Find Book");
-                Console.WriteLine("5. Delete Book");
+                Console.WriteLine("1. Add Student");
+                Console.WriteLine("2. Edit Student");
+                Console.WriteLine("3. List Students");
+                Console.WriteLine("4. Find Student");
+                Console.WriteLine("5. Delete Student");
                 Console.WriteLine("6. Exit");
-                Console.Write("Enter choice: ");
 
+                Console.Write("Enter your choice: ");
                 var choice = Console.ReadLine();
+
                 switch (choice)
                 {
-                    case "1": AddBook(); break;
-                    case "2": EditBook(); break;
-                    case "3": ListBooks(); break;
-                    case "4": FindBook(); break;
-                    case "5": DeleteBook(); break;
-                    case "6": return;
-                    default: Console.WriteLine("Invalid choice"); break;
+                    case "1":
+                        AddStudent();
+                        break;
+                    case "2":
+                        EditStudent();
+                        break;
+                    case "3":
+                        ListStudents();
+                        break;
+                    case "4":
+                        FindStudent();
+                        break;
+                    case "5":
+                        DeleteStudent();
+                        break;
+                    case "6":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid choice!");
+                        break;
                 }
             }
         }
 
-        private void AddBook()
+        static void AddStudent()
         {
-            var book = ReadBookDetails();
             try
             {
-                BookValidator.Validate(book);
-                BookRepository.Add(book);
-                Console.WriteLine("Book added.");
+                var student = ReadStudentDetails();
+                BusinessLayer.ValidateStudentData(student);
+                DataAccessLayer.AddStudent(student);
+                Console.WriteLine("Student added successfully.");
             }
             catch (ArgumentException ex)
             {
@@ -128,75 +160,75 @@ namespace domaindriven
             }
         }
 
-        private void EditBook()
+        static void EditStudent()
         {
-            Console.Write("Enter Book Id to edit: ");
-            if (int.TryParse(Console.ReadLine(), out int id) && BookRepository.Exists(id))
+            Console.Write("Enter Student Id to Edit: ");
+            int id = int.Parse(Console.ReadLine());
+
+            var student = ReadStudentDetails();
+            student.Id = id;
+
+            BusinessLayer.ValidateStudentData(student);
+            DataAccessLayer.EditStudent(student);
+            Console.WriteLine("Student updated.");
+        }
+
+        static void ListStudents()
+        {
+            var students = DataAccessLayer.GetAllStudents();
+            foreach (var s in students)
             {
-                var book = ReadBookDetails();
-                book.Id = id;
-                try
-                {
-                    BookValidator.Validate(book);
-                    BookRepository.Edit(book);
-                    Console.WriteLine("Book updated.");
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                PrintStudent(s);
             }
-            else Console.WriteLine("Book not found.");
         }
 
-        private void ListBooks()
-        {
-            var books = BookRepository.GetAll();
-            foreach (var b in books)
-                Console.WriteLine($"Id: {b.Id}, Title: {b.Title}, Author: {b.Author}");
-        }
-
-        private void FindBook()
+        static void FindStudent()
         {
             Console.Write("Enter keyword to search: ");
             string keyword = Console.ReadLine();
-            var results = BookRepository.Find(keyword);
-            foreach (var b in results)
-                Console.WriteLine($"Id: {b.Id}, Title: {b.Title}, Author: {b.Author}");
-        }
 
-        private void DeleteBook()
-        {
-            Console.Write("Enter Book Id to delete: ");
-            if (int.TryParse(Console.ReadLine(), out int id) && BookRepository.Exists(id))
+            var results = DataAccessLayer.FindStudents(keyword);
+            foreach (var s in results)
             {
-                BookRepository.Delete(id);
-                Console.WriteLine("Book deleted.");
+                PrintStudent(s);
             }
-            else Console.WriteLine("Book not found.");
         }
 
-        private Book ReadBookDetails()
+        static void DeleteStudent()
         {
-            Console.Write("Title: ");
-            string title = Console.ReadLine();
-            Console.Write("Author: ");
-            string author = Console.ReadLine();
+            Console.Write("Enter Student Id to Delete: ");
+            int id = int.Parse(Console.ReadLine());
 
-            return new Book { Title = title, Author = author };
+            DataAccessLayer.DeleteStudent(id);
+            Console.WriteLine("Student deleted.");
         }
-    }
-}
 
-// ======= Program.cs =======
-namespace domaindriven
-{
-    class Program
-    {
-        static void Main()
+        static Student ReadStudentDetails()
         {
-            var app = new ConsoleApp();
-            app.Run();
+            Console.Write("Name: ");
+            string name = Console.ReadLine();
+
+            Console.Write("Age: ");
+            int age = int.Parse(Console.ReadLine());
+
+            Console.Write("Grade: ");
+            string grade = Console.ReadLine();
+
+            Console.Write("Major: ");
+            string major = Console.ReadLine();
+
+            return new Student
+            {
+                Name = name,
+                Age = age,
+                Grade = grade,
+                Major = major
+            };
+        }
+
+        static void PrintStudent(Student s)
+        {
+            Console.WriteLine($"Id: {s.Id}, Name: {s.Name}, Age: {s.Age}, Grade: {s.Grade}, Major: {s.Major}");
         }
     }
 }
