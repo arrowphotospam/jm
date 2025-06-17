@@ -1,0 +1,181 @@
+
+===========================
+1. Vehicle.cs
+===========================
+namespace VehicleApp.Models
+{
+    public class Vehicle
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Manufacturer { get; set; }
+        public int Year { get; set; }
+    }
+}
+
+===========================
+2. BusinessLayer.cs
+===========================
+using VehicleApp.Models;
+
+namespace VehicleApp
+{
+    public class BusinessLayer
+    {
+        private readonly DataAccessLayer _dal = new DataAccessLayer();
+
+        public void AddVehicle(Vehicle vehicle)
+        {
+            _dal.Add(vehicle);
+        }
+
+        public bool DeleteVehicle(int id)
+        {
+            return _dal.Delete(id);
+        }
+
+        public bool EditVehicle(Vehicle vehicle)
+        {
+            return _dal.Update(vehicle);
+        }
+
+        public List<Vehicle> GetAllVehicles()
+        {
+            return _dal.GetAll();
+        }
+    }
+}
+
+===========================
+3. DataAccessLayer.cs
+===========================
+using VehicleApp.Models;
+
+namespace VehicleApp
+{
+    public class DataAccessLayer
+    {
+        private List<Vehicle> _vehicles = new List<Vehicle>();
+
+        public void Add(Vehicle vehicle)
+        {
+            _vehicles.Add(vehicle);
+        }
+
+        public bool Delete(int id)
+        {
+            var v = _vehicles.FirstOrDefault(x => x.Id == id);
+            if (v != null)
+            {
+                _vehicles.Remove(v);
+                return true;
+            }
+            return false;
+        }
+
+        public bool Update(Vehicle updated)
+        {
+            var index = _vehicles.FindIndex(v => v.Id == updated.Id);
+            if (index != -1)
+            {
+                _vehicles[index] = updated;
+                return true;
+            }
+            return false;
+        }
+
+        public List<Vehicle> GetAll()
+        {
+            return _vehicles;
+        }
+    }
+}
+
+===========================
+4. UnitTests.cs
+===========================
+using NUnit.Framework;
+using VehicleApp;
+using VehicleApp.Models;
+using System.Linq;
+
+namespace TestProject
+{
+    public class UnitTests
+    {
+        [Test]
+        public void Vehicle_Model_ShouldExist()
+        {
+            var vehicle = new Vehicle();
+            Assert.IsNotNull(vehicle);
+        }
+
+        [Test]
+        public void VehicleProperties_ShouldBeCorrect()
+        {
+            var vehicle = new Vehicle
+            {
+                Id = 1,
+                Name = "Tesla",
+                Type = "Electric",
+                Manufacturer = "Tesla Inc.",
+                Year = 2024
+            };
+
+            Assert.AreEqual(1, vehicle.Id);
+            Assert.AreEqual("Tesla", vehicle.Name);
+            Assert.AreEqual("Electric", vehicle.Type);
+            Assert.AreEqual("Tesla Inc.", vehicle.Manufacturer);
+            Assert.AreEqual(2024, vehicle.Year);
+        }
+
+        [Test]
+        public void BusinessLayer_AddVehicle_ShouldWork()
+        {
+            var bl = new BusinessLayer();
+            var v = new Vehicle { Id = 1, Name = "Car", Type = "Sedan", Manufacturer = "Honda", Year = 2023 };
+            bl.AddVehicle(v);
+            var list = bl.GetAllVehicles();
+            Assert.AreEqual(1, list.Count);
+        }
+
+        [Test]
+        public void BusinessLayer_DeleteVehicle_ShouldWork()
+        {
+            var bl = new BusinessLayer();
+            var v = new Vehicle { Id = 1, Name = "Bike", Type = "TwoWheeler", Manufacturer = "Yamaha", Year = 2022 };
+            bl.AddVehicle(v);
+            var deleted = bl.DeleteVehicle(1);
+            Assert.IsTrue(deleted);
+            Assert.AreEqual(0, bl.GetAllVehicles().Count);
+        }
+
+        [Test]
+        public void BusinessLayer_EditVehicle_ShouldWork()
+        {
+            var bl = new BusinessLayer();
+            var v = new Vehicle { Id = 1, Name = "Truck", Type = "Heavy", Manufacturer = "Tata", Year = 2020 };
+            bl.AddVehicle(v);
+            var updated = new Vehicle { Id = 1, Name = "MiniTruck", Type = "Light", Manufacturer = "Tata", Year = 2021 };
+            var result = bl.EditVehicle(updated);
+            Assert.IsTrue(result);
+            Assert.AreEqual("MiniTruck", bl.GetAllVehicles().First().Name);
+        }
+
+        [Test]
+        public void DataAccessLayer_Methods_ShouldExist()
+        {
+            var dal = new DataAccessLayer();
+            dal.Add(new Vehicle { Id = 1, Name = "A" });
+            Assert.AreEqual(1, dal.GetAll().Count);
+            Assert.IsTrue(dal.Delete(1));
+            Assert.AreEqual(0, dal.GetAll().Count);
+        }
+    }
+}
+
+===========================
+5. Project Reference in TestProject.csproj
+===========================
+<ProjectReference Include="..\VehicleApp\VehicleApp.csproj" />
