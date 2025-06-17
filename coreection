@@ -1,0 +1,48 @@
+namespace StudentLibrary.Models
+{
+    public class Student
+    {
+        public int Id {get;set;}
+        public string Name {get;set;}
+        public int Age {get;set;}
+        public string Grade {get;set;}
+        public string Major {get;set;}
+    }
+}
+
+
+
+
+
+
+using StudentLibrary.Models;
+
+namespace StudentLibrary
+{
+    public class BusinessLayer
+    {
+        private List<Student> students = new List<Student>();
+
+        public void AddStudent(Student s) => students.Add(s);
+
+        public List<Student> GetAllStudents() => students;
+
+        public void EditStudent(int id, Student updated)
+        {
+            var student = students.FirstOrDefault(x => x.Id == id);
+            if(student != null)
+            {
+                student.Name = updated.Name;
+                student.Age = updated.Age;
+                student.Grade = updated.Grade;
+                student.Major = updated.Major;
+            }
+        }
+
+        public void DeleteStudent(int id)
+        {
+            var student = students.FirstOrDefault(x => x.Id == id);
+            if(student != null) students.Remove(student);
+        }
+    }
+}
