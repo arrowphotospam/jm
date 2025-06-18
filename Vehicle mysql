@@ -1,0 +1,90 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Data.SqlClient;
+public class Program{
+    // const SqlConnection objcon=new SqlConnection("server=.;database=appdb;user name=sa;password=examMssql@123");
+    const string connectionString="server=.;database=appdb;user name=sa;password=examMssql@123";
+    public static void Main(string[] args){
+        SqlConnection objCon=new SqlConnection(connectionString);
+        objCon.Open();
+        while(true){
+            int input=int.Parse(Console.ReadLine());
+            switch(input){
+                case 1:
+                //AddC
+                    int vehicleId=int.Parse(Console.ReadLine());
+                    string vehicleName=Console.ReadLine();
+                    string vehicleType=Console.ReadLine();
+                    int manufactureYear=int.Parse(Console.ReadLine());
+                    AddVehicle(objCon,vehicleId,vehicleName,vehicleType,manufactureYear);
+                    break;
+                case 2:
+                   DisplayAllVehicles(objCon);
+                    break;
+                case 3:
+                    int vehicleIdEdit=int.Parse(Console.ReadLine());
+                    string vehicleNameEdit=Console.ReadLine();
+                    string vehicleTypeEdit=Console.ReadLine();
+                    int manufactureYearEdit=int.Parse(Console.ReadLine());
+                    EditVehicle(objCon,vehicleIdEdit,vehicleNameEdit,vehicleTypeEdit,manufactureYearEdit);               
+
+                    break;
+                case 4:
+                    return;
+              
+                default:
+                     Console.WriteLine("Invalid input");
+                     break;
+                //default message
+            }
+        }//Catch(sqlException objse){Console.WriteLine(ObjectDisposedException.Message)}   
+
+    }
+    public static void AddVehicle(SqlConnection objCon,int vehicleId,string vehicleName,string vehicleType,int manufactureYear){
+        try{
+            objCon.Open();
+            // string cmd="insert into Vehicle values(" + vehicleId+ ",'")";--Riskier COncatination
+            string cmd="insert into Vehicles values(@vehicleId,@vehicleName,@vehicleType,@vmanufactureYear)";
+            SqlCommand command=new SqlCommand(cmd,objCon);
+            command.Parameters.AddWithValue("@vehicleName",vehicleName);
+            command.Parameters.AddWithValue("@vehicleType",vehicleType);
+            command.Parameters.AddWithValue("@manufactureYear",manufactureYear);
+            int noRowsAffected=command.ExecuteNonQuery();
+        }catch(SqlException obx){
+            Console.WriteLine(obx.Message);
+        }
+        catch(Exception ob){
+            Console.WriteLine(ob.Message);
+        }
+    }
+
+    public static void DisplayAllVehicles(SqlConnection objCon){
+        try{
+            string selectCommand="select * from vehicles";
+            SqlCommand command=new SqlCommand(selectCommand,objCon);
+            SqlDataReader objDr=command.ExecuteReader();
+            while(objDr.Read()){
+                Console.WriteLine("VehicleId: {0},VehicleName: {1},VehicleType: {2},ManufactureYear: {3}",
+                objDr[0],objDr[1],objDr[2],objDr[3]);
+            }
+
+        }catch(SqlException obx){
+            Console.WriteLine(obx.Message);
+        }
+        catch(Exception ob){
+            Console.WriteLine(ob.Message);
+        }
+    }
+
+    public static void EditVehicle(SqlConnection objCon,int vehicleId,string vehicleName,string vehicleType,int manufactureYear){
+
+            string updatecmd="Edit into Vehicles values(@vehicleName,@vehicleType,@vmanufactureYear where vehicleId=@vehicleId)";
+            SqlCommand command=new SqlCommand(updatecmd,objCon);
+            command.Parameters.AddWithValue("@vehicleName",vehicleName);
+            command.Parameters.AddWithValue("@vehicleType",vehicleType);
+            command.Parameters.AddWithValue("@manufactureYear",manufactureYear);
+            int noRowsAffected=command.ExecuteNonQuery();
+
+    }
+
+}
