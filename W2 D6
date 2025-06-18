@@ -1,0 +1,576 @@
+W2 D6 S1  1👇
+
+
+
+using System;
+
+using System.Data.SqlClient;
+
+public class Program
+
+{
+
+ 
+
+ 
+
+      static string  ConnectionString="User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+
+ 
+
+        public static void AddVehicle(SqlConnection connection,int id,string name,string type,int manu){
+
+           
+
+            string query="Insert INTO Vehicle VALUES(@id,@name,@type,@year)";
+
+            using(SqlCommand cmd = new SqlCommand(query,connection))
+
+            {
+
+                cmd.Parameters.AddWithValue("@id",id);
+
+                cmd.Parameters.AddWithValue("@name",name);
+
+                cmd.Parameters.AddWithValue("@type",type);
+
+                cmd.Parameters.AddWithValue("@year",manu);
+
+                cmd.ExecuteNonQuery();
+
+                Console.WriteLine("Vehicle added successfully!");
+
+            }
+
+ 
+
+        }
+
+        public static void DisplayAllVehicles(SqlConnection connection){
+
+                string query = "SELECT * FROM Vehicle";
+
+                using(SqlCommand cmd = new SqlCommand(query,connection))
+
+                {
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    Console.WriteLine("Vehicle Records:");
+
+                    Console.WriteLine("ID\tName\tType\tYear");
+
+                    while(reader.Read()){
+
+                        Console.WriteLine($"{reader[0]}\t{reader[1]}\t{reader[2]}\t{reader[3]}");
+
+                    }
+
+                    reader.Close();
+
+                }
+
+        }
+
+        public static void EditVehicle(SqlConnection connection,int id,string name,string type,int manu){
+
+            string query="Update Vehicle SET vehicleName = @name,VehicleType=@type,ManufactureYear=@year where VehicleId=@id";
+
+            using(SqlCommand cmd = new SqlCommand(query,connection))
+
+                {
+
+                    cmd.Parameters.AddWithValue("@id",id);
+
+                    cmd.Parameters.AddWithValue("@name",name);
+
+                    cmd.Parameters.AddWithValue("@type",type);
+
+                    cmd.Parameters.AddWithValue("@year",manu);
+
+                    int row=cmd.ExecuteNonQuery();
+
+                    if(row>0)
+
+                    Console.WriteLine("Vehicle updated successfully!");
+
+                    else
+
+                    Console.WriteLine("Vehicle Not Found ");
+
+                }
+
+        }
+
+        public static void Main(string[] args)
+
+            {
+
+ 
+
+                        try{
+
+ 
+
+                                using(SqlConnection connection =new SqlConnection(ConnectionString)){
+
+                               
+
+                                        connection.Open();
+
+                                        Console.WriteLine("Connection successful!");
+
+                                        Console.WriteLine("Select an option:");
+
+                                        Console.WriteLine("1. Add Vehicle");
+
+                                        Console.WriteLine("2. Display All Vehicles");
+
+                                        Console.WriteLine("3. Edit Vehicle");
+
+                                        int choice = int.Parse(Console.ReadLine());
+
+                                        switch(choice){
+
+                                            case 1:
+
+                                                    Console.Write("Vehicle ID: ");
+
+                                                    int id=int.Parse(Console.ReadLine());
+
+                                                    Console.Write("Vehicle Name: ");
+
+                                                    string name=Console.ReadLine();
+
+                                                    Console.Write("Vehicle Type: ");
+
+                                                    string type=Console.ReadLine();
+
+                                                    Console.Write("Manufacture Year: ");
+
+                                                    int year=int.Parse(Console.ReadLine());
+
+                                                    AddVehicle(connection,id,name,type,year);
+
+                                                    break;
+
+                                            case 2 : DisplayAllVehicles(connection);break;
+
+                                            case 3 :
+
+                                                    Console.Write("Vehicle ID To edit: ");
+
+                                                    int id1=int.Parse(Console.ReadLine());
+
+                                                    Console.Write("New Vehicle Name: ");
+
+                                                    string name1=Console.ReadLine();
+
+                                                    Console.Write("New Vehicle Type: ");
+
+                                                    string type1=Console.ReadLine();
+
+                                                    Console.Write("New Manufacture Year: ");
+
+                                                    int year1=int.Parse(Console.ReadLine());
+
+                                                    EditVehicle(connection,id1,name1,type1,year1);
+
+                                                    break;
+
+                                            default : Console.WriteLine("Invalid choice.");break;
+
+                                               
+
+                                        }
+
+                                        connection.Close();
+
+                                   
+
+                                }
+
+                        }
+
+                        catch(Exception e){
+
+                            Console.WriteLine("Error: " + e.Message);
+
+                        }
+
+                        finally{
+
+                        }
+
+            }
+
+ 
+
+}
+W2 D6 S1 2👇
+
+
+using System;
+using System.Data.SqlClient;
+
+public class Program{
+    public static string connectionString="User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+
+    public static void Main(string[] args){
+        try{
+            using(SqlConnection connection=new SqlConnection(connectionString)){
+                connection.Open();
+                Console.WriteLine("Connection successful!");
+
+                while(true){
+                    Console.WriteLine("\nSelect an option:");
+                    Console.WriteLine("1. Add Student");
+                    Console.WriteLine("2. Display All Students");
+                    Console.WriteLine("Option");
+
+                    string choice=Console.ReadLine();
+
+                    
+                        if(choice == "1"){
+                            Console.WriteLine("Enter student details:");
+
+                            Console.Write("Student ID: ");
+                            int studentId=int.Parse(Console.ReadLine());
+
+                            Console.Write("Student Name: ");
+                            string name=Console.ReadLine();
+
+                            Console.Write("Student Age: ");
+                            int age=int.Parse(Console.ReadLine());
+
+                            Console.Write("Student Gender: ");
+                            string gender=Console.ReadLine();
+
+                            Console.Write("Student Mobile Number: ");
+                            string mobile=Console.ReadLine();
+
+                            Console.Write("Student Email: ");
+                            string email=Console.ReadLine();
+
+                            AddStudent(connection,studentId,name,age,gender,mobile,email);
+                            Console.WriteLine("Student added successfully!");
+                        }
+                        else if(choice=="2"){
+                            DisplayAllStudents(connection);
+                        }
+
+                        else{
+                            Console.WriteLine("Invalid option.");
+                        }
+                }
+            }
+                
+        }
+            catch(Exception e){
+                Console.WriteLine("Database connection failed: "+e.Message);
+            }
+            }
+
+        public static void AddStudent(SqlConnection connection, int studentId, string name, int age, string gender, string mobile, string email){
+            string query="INSERT INTO Student VALUES (@id, @name, @age, @gender, @mobile, @email)";
+            using (SqlCommand cmd=new SqlCommand(query,connection)){
+
+                cmd.Parameters.AddWithValue("@id", studentId);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@age", age);
+                cmd.Parameters.AddWithValue("@gender", gender);
+                cmd.Parameters.AddWithValue("@mobile", mobile);
+                cmd.Parameters.AddWithValue("@email", email);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void DisplayAllStudents(SqlConnection connection){
+
+            string query="SELECT * FROM Student";
+
+           using (SqlCommand cmd=new SqlCommand(query,connection))
+            using(SqlDataReader reader=cmd.ExecuteReader()){
+                Console.WriteLine("\nStudent Records:");
+                Console.WriteLine("ID\tName\tAge\tGender\tMobile Number\tEmail");
+
+                while(reader.Read()){
+                    Console.WriteLine($"{reader["StudentId"]}\t{reader["StudentName"]}\t{reader["StudentAge"]}\t{reader["StudentGender"]}\t{reader["StudentMobileNumber"]}\t{reader["StudentEmail"]}");
+                }
+            }
+        }
+}
+
+W2 D6 S1 3 👇
+
+
+
+
+using System;
+using System.Data.SqlClient;
+
+public class Program{
+    public static string ConnectionString="User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+    public static void Main(string[] args){
+        try{
+            using(SqlConnection connection=new SqlConnection(ConnectionString)){
+                connection.Open();
+                Console.WriteLine("Connection sucessful!");
+
+                while(true){
+                    Console.WriteLine("\nSelect an option:");
+                    Console.WriteLine("1. Add Book");
+                    Console.WriteLine("2. Display All Books");
+                    string choice=Console.ReadLine();
+
+                    if(choice=="1"){
+                        Console.Write("Book ID: ");
+                        int bookId=int.Parse(Console.ReadLine());
+
+                        Console.Write("Book Title: ");
+                        string title=Console.ReadLine();
+
+                        Console.Write("Author: ");
+                        string author=Console.ReadLine();
+
+                        Console.Write("Publication Year: ");
+                        int year=int.Parse(Console.ReadLine());
+
+                        Console.Write("Genre: ");
+                        string genre=Console.ReadLine();
+
+                        AddBook(connection,bookId,title,author,year,genre);
+                        Console.WriteLine("Book added successfully!");
+
+                    }
+
+                    else if(choice=="2"){
+                        DisplayAllBooks(connection);
+                    }
+                    else{
+                        Console.WriteLine("Invalid option.");
+                    }
+                }
+            }
+        }
+        catch(Exception e){
+            Console.WriteLine("Database connection failed "+e.Message);
+        }
+    }
+
+    public static void AddBook(SqlConnection connection,int bookId,string title,string author,int year,string genre){
+        string query="INSERT INTO Book VALUES(@id,@title,@author,@year,@genre)";
+        using(SqlCommand cmd=new SqlCommand(query,connection)){
+            cmd.Parameters.AddWithValue("@id", bookId);
+            cmd.Parameters.AddWithValue("@title", title);
+            cmd.Parameters.AddWithValue("@author", author);
+            cmd.Parameters.AddWithValue("@year", year);
+            cmd.Parameters.AddWithValue("@genre", genre);
+
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    public static void DisplayAllBooks(SqlConnection connection){
+        string query="SELECT * FROM Book";
+        using(SqlCommand cmd=new SqlCommand(query,connection))
+        using(SqlDataReader reader=cmd.ExecuteReader()){
+            Console.WriteLine("\nBook Records:");
+            Console.WriteLine("ID\tTitle\tAuthor\tYear\tGenre");
+
+            while(reader.Read()){
+                Console.WriteLine($"{reader[0]}\t{reader[1]}\t{reader[2]}\t{reader[3]}\t{reader[4]}");
+            }
+        }
+    }
+        
+    
+}
+
+W2 D6 S2 1👇
+
+
+
+
+using System;
+using System.Data.SqlClient;
+
+
+public class Program{
+    public static void Main(string[] args){
+        try{
+            string TableCreationQuery="create Table Crop(CropId int primary key,CropName varchar(50),CropType varchar(50),HarvestSeason varchar(50))";
+            string ConnectionString="User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+            SqlConnection connection=new SqlConnection(ConnectionString);
+            connection.Open();
+            Console.WriteLine("Connection successful!");
+            SqlCommand command=new SqlCommand(TableCreationQuery,connection);
+            command.ExecuteNonQuery();
+            AddCrop(connection,1,"Rice","dry","Summer");
+            DisplayAllCrops(connection);
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    public static void AddCrop(SqlConnection connection,int cropId,string cropName,string cropType,string harvestSeason){
+        try{
+            string query="insert into Crop(CropId,CropName,CropType,HarvestSeason)"+"Values(@CropId,@CropName,@CropType,@HarvestSeason)";
+            SqlCommand command=new SqlCommand(query,connection);
+            command.Parameters.AddWithValue("@CropId",cropId);
+            command.Parameters.AddWithValue("@CropName",cropName);
+            command.Parameters.AddWithValue("@CropType",cropType);
+            command.Parameters.AddWithValue("@HarvestSeason",harvestSeason);
+            command.ExecuteNonQuery();
+            Console.WriteLine("Crop added successfully!");
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+    public static void DisplayAllCrops(SqlConnection connection){
+        try{
+            string query="select * from Crop";
+            SqlCommand command=new SqlCommand(query,connection);
+            SqlDataReader reader=command.ExecuteReader();
+            Console.WriteLine("Crop Records:");
+            Console.WriteLine($"ID\tName\tType\tSeason");
+            while(reader.Read()){
+                Console.WriteLine($"{reader[0]}\t{reader[1]}\t{reader[2]}\t{reader[3]}\t");
+            }
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    public static void EditCrop(SqlConnection connection,int cropId,string cropName,string cropType,string harvestSeason){
+        try{
+            string query="update Crop set CropName=@CropName,CropType=@CropType,HarvestSeason=@HarvestSeason where CropId=@CropId";
+            SqlCommand command=new SqlCommand(query,connection);
+            command.Parameters.AddWithValue("@CropId",cropId);
+            command.Parameters.AddWithValue("@CropName",cropName);
+            command.Parameters.AddWithValue("@CropType",cropType);
+            command.Parameters.AddWithValue("@HarvestSeason",harvestSeason);
+            command.ExecuteNonQuery();
+            Console.WriteLine("Crop updated successfully!");
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+            
+}
+
+
+W2 D6 S2 2 👇
+
+
+
+
+using System;
+using System.Data.SqlClient;
+
+public class Program{
+    public static void Main(string[] args){
+        try{
+            string connectionString="User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+            string TableCreationQuery="create table Grocery(GroceryId int primary key, Name varchar(50), Rate decimal(10,2), Stock int)";
+            SqlConnection connection=new SqlConnection(connectionString);
+            connection.Open();
+            Console.WriteLine("Connection Successful!");
+            SqlCommand command=new SqlCommand(TableCreationQuery,connection);
+            command.ExecuteNonQuery();
+            AddGrocery(connection,1,"brush",1000,5);
+            DisplayAllGroceries(connection);
+            connection.Close();
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    public static void AddGrocery(SqlConnection connection, int groceryId,string name,decimal rate,int stock){
+        try{
+            string query="insert into Grocery(GroceryId,Name,Rate,Stock)"+"values(@GroceryId,@Name,@Rate,@Stock)";
+            SqlCommand command=new SqlCommand(query,connection);
+
+            command.Parameters.AddWithValue("@GroceryId",groceryId);
+            command.Parameters.AddWithValue("@Name",name);
+            command.Parameters.AddWithValue("@Rate",rate);
+            command.Parameters.AddWithValue("@Stock",stock);
+
+            command.ExecuteNonQuery();
+            //Console.WriteLine("Grocery added successfully!");
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+     public static void DisplayAllGroceries(SqlConnection connection){
+        try{
+            string query="select * from Grocery";
+            SqlCommand command=new SqlCommand(query,connection);
+            SqlDataReader reader=command.ExecuteReader();
+
+            Console.WriteLine("Grocery Records:");
+            Console.WriteLine("ID\tName\tRate\tStock");
+            while(reader.Read()){
+                Console.WriteLine($"{reader[0]}\t{reader[1]}\t{reader[2]}\t{reader[3]}");
+            }
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+    public static void EditGrocery(SqlConnection connection, int groceryId,string name,decimal rate,int stock){
+        try{
+            string query="update Grocery set Name=@Name,Rate=@Rate,Stock=@Stock where GroceryId=@GroceryId";
+            SqlCommand command=new SqlCommand(query,connection);
+
+            command.Parameters.AddWithValue("@GroceryId",groceryId);
+            command.Parameters.AddWithValue("@Name",name);
+            command.Parameters.AddWithValue("@Rate",rate);
+            command.Parameters.AddWithValue("@Stock",stock);
+
+            command.ExecuteNonQuery();
+            Console.WriteLine("Grocery updated successfully!");
+        }
+        catch(SystemException e){
+            Console.WriteLine(e.Message);
+        }
+    }
+
+
+}
+
+
+W2 D6 S2 3 👇
+
+
+
+
+using System;
+using System.Data.SqlClient;
+
+public class Program{
+    public static void Main(string[] args){
+
+    }
+
+    public static void AddEmployee(SqlConnection connection){
+
+    }
+
+    public static void DeleteEmployee(SqlConnection connection){
+        
+    }
+}
+
+
+
+
+If u write this all test cases will  get passed and when u submit ull get 6 marks out of 10
