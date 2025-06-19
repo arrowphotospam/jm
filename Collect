@@ -1,0 +1,127 @@
+COLLECTION GENERIC LIST
+
+problem clear
+
+using System;
+using System.Collections.Generic;
+
+public class Program
+{
+    public static EmployeeManager employeeManager = new EmployeeManager();
+
+    public static void Main(string[] args)
+    {
+        while (true)
+        {
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Add Employee");
+            Console.WriteLine("2. Display Employees");
+            Console.WriteLine("3. Exit");
+            Console.Write("Enter your choice: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter Employee ID: ");
+                    if (!int.TryParse(Console.ReadLine(), out int id))
+                    {
+                        Console.WriteLine("Invalid ID. Please enter a number.");
+                        break;
+                    }
+
+                    Console.Write("Enter Employee Name: ");
+                    string name = Console.ReadLine();
+
+                    Console.Write("Enter Age: ");
+                    if (!int.TryParse(Console.ReadLine(), out int age))
+                    {
+                        Console.WriteLine("Invalid Age. Please enter a number.");
+                        break;
+                    }
+
+                    Console.Write("Enter Gender: ");
+                    string gender = Console.ReadLine();
+
+                    Console.Write("Enter Phone Number: ");
+                    string phoneNumber = Console.ReadLine();
+
+                    Employee employee = new Employee
+                    {
+                        EmployeeId = id,
+                        EmployeeName = name,
+                        Age = age,
+                        Gender = gender,
+                        PhoneNumber = phoneNumber,
+                    };
+
+                    employeeManager.AddEmployee(employee);
+                    break;
+
+                case "2":
+                    employeeManager.DisplayEmployees();
+                    break;
+
+                case "3":
+                    Console.WriteLine("Exiting program...");
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice, please try again.");
+                    break;
+            }
+        }
+    }
+}
+
+public class EmployeeManager
+{
+    public List<Employee> Employees = new List<Employee>();
+
+    public void AddEmployee(Employee inf)
+    {
+        foreach (var existingEmployee in Employees)
+        {
+            if (existingEmployee.EmployeeId == inf.EmployeeId)
+            {
+                Console.WriteLine($"An employee with ID {inf.EmployeeId} already exists.");
+                return;
+            }
+        }
+
+        Employees.Add(inf);
+        Console.WriteLine("Employee added successfully.");
+    }
+
+    public void DisplayEmployees()
+    {
+        if (Employees.Count == 0)
+        {
+            Console.WriteLine("No employees available.");
+            return;
+        }
+
+        Console.WriteLine("\nEmployee List:");
+        foreach (var inf in Employees)
+        {
+            Console.WriteLine($"Employee ID: {inf.EmployeeId}, Name: {inf.EmployeeName}, Age: {inf.Age}, Gender: {inf.Gender}, Phone: {inf.PhoneNumber}");
+        }
+    }
+}
+
+public class Employee
+{
+    public int EmployeeId { get; set; }
+    public string EmployeeName { get; set; }
+    public int Age { get; set; }
+    public string Gender { get; set; }
+    public string PhoneNumber { get; set; }
+
+    public Employee() { }
+
+    public void DisplayEmployeeDetails()
+    {
+        Console.WriteLine($"Employee ID: {EmployeeId}, Name: {EmployeeName}, Age: {Age}, Gender: {Gender}, Phone: {PhoneNumber}");
+    }
+}
