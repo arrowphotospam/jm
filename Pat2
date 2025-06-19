@@ -1,0 +1,215 @@
+VEHICLE MANAGEMENT SYST
+
+
+
+namespace dotnetapp.Models
+{
+    public class Vehicle
+    {
+        public int VehicleID { get; set; }
+        public string VehicleMake { get; set; }
+        public string VehicleModel { get; set; }
+        public int VehicleYear { get; set; }
+        public string ServiceDate { get; set; }
+
+        public Vehicle(string make, string model, int year, string serviceDate)
+        {
+            VehicleMake = make;
+            VehicleModel = model;
+            VehicleYear = year;
+            ServiceDate = serviceDate;
+        }
+    }
+}
+
+
+using System.Data;
+using System.Data.SqlClient;
+
+namespace ADO_Disconnected
+{
+    public class Program
+    {
+        static void Main(string[] args)
+        {
+            using (SqlConnection objCon = new SqlConnection("User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False"))
+            {
+                objCon.Open();
+            }
+            Console.WriteLine("Welcome to Vehicle management System");
+
+            do{
+                Console.WriteLine("1 to Add, 2 to Edit, 3 to Delete, 4 to Search, 5 to Display; ");
+                int operation = Convert.ToInt32(Console.ReadLine());
+
+                switch(operation){
+                    case 1:
+                        Console.WriteLine("Enter vehicle ID: ");
+                        int idAdd = Convert.ToInt32(Console.ReadLine());
+
+                        Console.WriteLine("Enter vehicle Name: ");
+                        string nameAdd = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle type: ");
+                        string typeAdd = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle Manufacture Year: ");
+                        int manufactureYearAdd = Convert.ToInt32(Console.ReadLine());
+
+                        AddVehicle(objCon, idAdd, nameAdd, typeAdd, manufactureYearAdd);
+                        break;
+                    
+                    case 2:
+                        Console.WriteLine("Enter vehicle ID: ");
+                        int idEdit = Convert.ToInt32(Console.ReadLine());
+
+                        Console.WriteLine("Enter vehicle Name: ");
+                        string nameEdit = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle type: ");
+                        string typeEdit = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle Manufacture Year: ");
+                        int manufactureYearEdit = Convert.ToInt32(Console.ReadLine());
+
+                        EditVehicle(objCon, idEdit, nameEdit, typeEdit, manufactureYearEdit);
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Enter the Vehicle ID: ");
+                        int idDelete = int.Parse(Console.ReadLine());
+                        DeleteVehicle(objCon, idDelete);
+                        break;
+
+                    case 4:
+                        Console.WriteLine("Enter Vehical Id: ");
+                        int idSearch = int.Parse(Console.ReadLine());
+                        SearchVehicle(objCon,idSearch);
+                        break;
+
+                    case 5:
+                        DisplayAllVehicle(objCon);
+                        break;
+
+                    case 6:
+                        Environment.Exit(0);
+                        Console.WriteLine("Exiting the application.");
+                        return;
+
+                    default:
+                        Console.WriteLine();
+                        break;
+                }
+            }while(true);
+        }
+
+        public static void AddVehicle(SqlConnection objCon, int id, string name, string type, int year)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+
+            DataRow objDRAdd = objDS.Tables[0].NewRow();
+            objDRAdd[0] = id;
+            objDRAdd[1] = name;
+            objDRAdd[2] = type;
+            objDRAdd[3] = year;
+
+            objDS.Tables[0].Rows.Add(objDRAdd);
+            objDA.Update(objDS);
+            Console.WriteLine("Added Successfully!");
+        }
+
+        public static void EditVehicle(SqlConnection objCon, int id, string name, string type, int year)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            objDA.Fill(objDS);
+            //
+            DataRow objDRFind = objDS.Tables[0].Rows.Find(id);
+            if(objDRFind != null)
+            {
+                objDRFind[1] = name;
+                objDRFind[2] = type;
+                objDRFind[3] = year;
+            }
+            else
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            objDA.Update(objDS);
+        }
+
+        public static void DeleteVehicle(SqlConnection objCon, int id)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            objDA.Fill(objDS);
+            //
+            DataRow objDRDelete = objDS.Tables[0].Rows.Find(id);
+            if(objDRDelete != null)
+            {
+                objDS.Tables[0].Rows.Remove(objDRDelete);
+            }
+            else
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            objDA.Update(objDS);
+        }
+
+        public static void SearchVehicle(SqlConnection objCon, int id)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+            //
+            DataRow objDRAdd = objDS.Tables[0].Rows.Find(id);
+            if(objDRAdd == null)
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Id" + objDRAdd[0]);
+                Console.WriteLine("Name" + objDRAdd[1]);
+                Console.WriteLine("Type" + objDRAdd[2]);
+                Console.WriteLine("ManufactureYear" + objDRAdd[3]);
+            }
+        }
+
+        public static void DisplayAllVehicle(SqlConnection objCon)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+            //
+            if(objDS == null || objDS.Tables.Count ==0)
+            {
+                Console.WriteLine("No data available.");
+                return;
+            }
+            foreach(DataRow row in objDS.Tables[0].Rows)
+            {
+                Console.WriteLine("Id: " + row[0]);
+                Console.WriteLine("Name: " + row[1]);
+                Console.WriteLine("Type: " + row[2]);
+                Console.WriteLine("ManufactureYear: " + row[3]);
+                Console.WriteLine("--------------------------");
+            }
+        }
+    }
+}
