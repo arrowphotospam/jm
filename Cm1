@@ -1,0 +1,401 @@
+VEHICLE MANAGEMENT SYST
+
+
+
+namespace dotnetapp.Models
+{
+    public class Vehicle
+    {
+        public int VehicleID { get; set; }
+        public string VehicleMake { get; set; }
+        public string VehicleModel { get; set; }
+        public int VehicleYear { get; set; }
+        public string ServiceDate { get; set; }
+
+        public Vehicle(string make, string model, int year, string serviceDate)
+        {
+            VehicleMake = make;
+            VehicleModel = model;
+            VehicleYear = year;
+            ServiceDate = serviceDate;
+        }
+    }
+}
+
+
+using System.Data;
+using System.Data.SqlClient;
+
+namespace ADO_Disconnected
+{
+    public class Program
+    {
+        static void Main(string[] args)
+        {
+            using (SqlConnection objCon = new SqlConnection("User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False"))
+            {
+                objCon.Open();
+            }
+            Console.WriteLine("Welcome to Vehicle management System");
+
+            do{
+                Console.WriteLine("1 to Add, 2 to Edit, 3 to Delete, 4 to Search, 5 to Display; ");
+                int operation = Convert.ToInt32(Console.ReadLine());
+
+                switch(operation){
+                    case 1:
+                        Console.WriteLine("Enter vehicle ID: ");
+                        int idAdd = Convert.ToInt32(Console.ReadLine());
+
+                        Console.WriteLine("Enter vehicle Name: ");
+                        string nameAdd = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle type: ");
+                        string typeAdd = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle Manufacture Year: ");
+                        int manufactureYearAdd = Convert.ToInt32(Console.ReadLine());
+
+                        AddVehicle(objCon, idAdd, nameAdd, typeAdd, manufactureYearAdd);
+                        break;
+                    
+                    case 2:
+                        Console.WriteLine("Enter vehicle ID: ");
+                        int idEdit = Convert.ToInt32(Console.ReadLine());
+
+                        Console.WriteLine("Enter vehicle Name: ");
+                        string nameEdit = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle type: ");
+                        string typeEdit = Console.ReadLine();
+
+                        Console.WriteLine("Enter vehicle Manufacture Year: ");
+                        int manufactureYearEdit = Convert.ToInt32(Console.ReadLine());
+
+                        EditVehicle(objCon, idEdit, nameEdit, typeEdit, manufactureYearEdit);
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Enter the Vehicle ID: ");
+                        int idDelete = int.Parse(Console.ReadLine());
+                        DeleteVehicle(objCon, idDelete);
+                        break;
+
+                    case 4:
+                        Console.WriteLine("Enter Vehical Id: ");
+                        int idSearch = int.Parse(Console.ReadLine());
+                        SearchVehicle(objCon,idSearch);
+                        break;
+
+                    case 5:
+                        DisplayAllVehicle(objCon);
+                        break;
+
+                    case 6:
+                        Environment.Exit(0);
+                        Console.WriteLine("Exiting the application.");
+                        return;
+
+                    default:
+                        Console.WriteLine();
+                        break;
+                }
+            }while(true);
+        }
+
+        public static void AddVehicle(SqlConnection objCon, int id, string name, string type, int year)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+
+            DataRow objDRAdd = objDS.Tables[0].NewRow();
+            objDRAdd[0] = id;
+            objDRAdd[1] = name;
+            objDRAdd[2] = type;
+            objDRAdd[3] = year;
+
+            objDS.Tables[0].Rows.Add(objDRAdd);
+            objDA.Update(objDS);
+            Console.WriteLine("Added Successfully!");
+        }
+
+        public static void EditVehicle(SqlConnection objCon, int id, string name, string type, int year)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            objDA.Fill(objDS);
+            //
+            DataRow objDRFind = objDS.Tables[0].Rows.Find(id);
+            if(objDRFind != null)
+            {
+                objDRFind[1] = name;
+                objDRFind[2] = type;
+                objDRFind[3] = year;
+            }
+            else
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            objDA.Update(objDS);
+        }
+
+        public static void DeleteVehicle(SqlConnection objCon, int id)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+            objDA.Fill(objDS);
+            //
+            DataRow objDRDelete = objDS.Tables[0].Rows.Find(id);
+            if(objDRDelete != null)
+            {
+                objDS.Tables[0].Rows.Remove(objDRDelete);
+            }
+            else
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            SqlCommandBuilder objCB = new SqlCommandBuilder(objDA);
+            objDA.Update(objDS);
+        }
+
+        public static void SearchVehicle(SqlConnection objCon, int id)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+            //
+            DataRow objDRAdd = objDS.Tables[0].Rows.Find(id);
+            if(objDRAdd == null)
+            {
+                Console.WriteLine("Vehicle not found.");
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Id" + objDRAdd[0]);
+                Console.WriteLine("Name" + objDRAdd[1]);
+                Console.WriteLine("Type" + objDRAdd[2]);
+                Console.WriteLine("ManufactureYear" + objDRAdd[3]);
+            }
+        }
+
+        public static void DisplayAllVehicle(SqlConnection objCon)
+        {
+            SqlCommand objCom = new SqlCommand("SELECT * FROM Vehicle", objCon);
+            SqlDataAdapter objDA = new SqlDataAdapter(objCom);
+            DataSet objDS = new DataSet();
+            objDA.Fill(objDS);
+            //
+            if(objDS == null || objDS.Tables.Count ==0)
+            {
+                Console.WriteLine("No data available.");
+                return;
+            }
+            foreach(DataRow row in objDS.Tables[0].Rows)
+            {
+                Console.WriteLine("Id: " + row[0]);
+                Console.WriteLine("Name: " + row[1]);
+                Console.WriteLine("Type: " + row[2]);
+                Console.WriteLine("ManufactureYear: " + row[3]);
+                Console.WriteLine("--------------------------");
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/EXTRA
+
+
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using DisconnectedArchitecture.Models;
+using  System.Runtime.InteropServices;
+//using Internal;
+ 
+namespace DisconnectArchitecture
+{
+ 
+    public static class ConnectionStringProvider
+    {
+        // Replace with your actual connection string
+        public static string ConnectionString { get; } = "User ID=sa;password=examlyMssql@123;server=localhost;Database=appdb;trusted_connection=false;Persist Security Info=False;Encrypt=False;";
+    }
+     
+ 
+    public class Program
+    {
+        // Replace with your actual connection string
+        static string connectionString = ConnectionStringProvider.ConnectionString;
+ 
+        static void Main(string[] args)
+        {
+ 
+            // Write your Disconnected Architecture console app here
+            // 1. Add Product
+            // 2. List Products
+            // 3. Update Stock Quantity
+            // 4. Delete Product
+            // 5. Exit
+            Console.WriteLine("Menu:");
+            Console.WriteLine("1. Add Product");
+            Console.WriteLine("2. List Products");
+            Console.WriteLine("3. Update Stock Quantity");
+            Console.WriteLine("4. Delete Product");
+            Console.WriteLine("5. Exit");
+             Console.Write("Enter your choice (1-5): ");
+            int choice=int.Parse(Console.ReadLine());
+ 
+            switch(choice)
+            {
+                case 1:
+                Product p=new Product();
+                Console.WriteLine("Enter the details for the new product:");
+                Console.Write("ProductID: ");
+                p.ProductID=int.Parse(Console.ReadLine());
+                Console.Write("ProductName: ");
+                p.ProductName=Console.ReadLine();
+                Console.Write("Price: ");
+                p.Price=decimal.Parse(Console.ReadLine());
+                Console.Write("StockQuantity: ");
+                p.StockQuantity=int.Parse(Console.ReadLine());
+                AddProduct(p);
+                break;
+                case 2:
+                Console.WriteLine("List of Products: ");
+                ListProducts();
+                break;
+                case 3:
+                Console.Write("Enter the name of the product to update stock quantity: ");
+                string name=Console.ReadLine();
+                Console.Write("Enter the new stock quantity: ");
+                int stock=int.Parse(Console.ReadLine());
+                UpdateProductStock(name,stock);
+                break;
+                case 4:
+                Console.Write("Enter the ProductID of the product to delete: ");
+                int id=int.Parse(Console.ReadLine());
+                DeleteProduct(id);
+                break;
+                case 5:
+                Console.WriteLine("Exiting the application...");
+                break;
+                default:
+                Console.WriteLine("Invalid choice!");
+                break;
+ 
+ 
+            }
+           
+        }
+        // Change your method names (xyz) to appropriate name
+        public static void AddProduct(Product product)
+        {
+            // Write your code to add new product
+            using(SqlConnection con=new SqlConnection(connectionString))
+            {
+                SqlCommand cmd=new SqlCommand("Select * From Products",con);
+                SqlDataAdapter adapter=new SqlDataAdapter(cmd);
+                SqlCommandBuilder builder=new SqlCommandBuilder(adapter);
+                DataSet ds=new DataSet();
+                adapter.Fill(ds,"Products");
+                DataTable dt=ds.Tables["Products"];
+                DataRow dr=dt.NewRow();
+                dr["ProductID"]=product.ProductID;
+                dr["ProductName"]=product.ProductName;
+                dr["Price"]=product.Price;
+                dr["StockQuantity"]=product.StockQuantity;
+                dt.Rows.Add(dr);
+                adapter.Update(dt);
+                Console.WriteLine("Product added successfully!");
+            }
+        }
+ 
+        public static void ListProducts()
+        {
+            // Write your code to ListProducts
+            using(SqlConnection con=new SqlConnection(connectionString))
+            {
+                SqlCommand cmd=new SqlCommand("Select * From Products",con);
+                SqlDataAdapter adapter=new SqlDataAdapter(cmd);
+                SqlCommandBuilder builder=new SqlCommandBuilder(adapter);
+                DataSet ds=new DataSet();
+                adapter.Fill(ds,"Products");
+                DataTable dt=ds.Tables["Products"];
+                foreach(DataRow dr in dt.Rows )
+                {
+                    Console.WriteLine($"ProductID: {dr["ProductID"]}, ProductName: {dr["ProductName"]}, Price: {dr["Price"]}, StockQuantity: {dr["StockQuantity"]}");
+                }
+            }
+        }
+ 
+        public static void UpdateProductStock(string productName, int newStockQuantity)
+        {
+            // Write your code to update the StockQuantity by using ProductName
+            using(SqlConnection con=new SqlConnection(connectionString))
+            {
+                SqlCommand cmd=new SqlCommand("Select * From Products",con);
+                SqlDataAdapter adapter=new SqlDataAdapter(cmd);
+                SqlCommandBuilder builder=new SqlCommandBuilder(adapter);
+                DataSet ds=new DataSet();
+                adapter.Fill(ds,"Products");
+                DataTable dt=ds.Tables["Products"];
+                DataRow[] dr=dt.Select($"ProductName='{productName}'");
+                dr[0]["StockQuantity"]=newStockQuantity;
+                adapter.Update(dt);
+                Console.WriteLine("Product stock updated successfully.");
+            }
+        }
+ 
+        public static void DeleteProduct(int productID)
+        {
+            // Write your code to delete the Product using ProductID
+            using(SqlConnection con=new SqlConnection(connectionString))
+            {
+                SqlCommand cmd=new SqlCommand("Select * From Products",con);
+                SqlDataAdapter adapter=new SqlDataAdapter(cmd);
+                SqlCommandBuilder builder=new SqlCommandBuilder(adapter);
+                DataSet ds=new DataSet();
+                adapter.Fill(ds,"Products");
+                DataTable dt=ds.Tables["Products"];
+                DataRow[] dr=dt.Select($"ProductID='{productID}'");
+                dr[0].Delete();
+                Console.WriteLine("Product deleted successfully.");
+            }
+        }
+ 
+    }
+}
+
+
+product.cs                                                                                                                              namespace DisconnectArchitecture
+{
+    public class Product
+    {
+        public int ProductID { get; set; }
+        public string ProductName { get; set; }
+        public decimal Price { get; set; }
+        public int StockQuantity { get; set; }
+    }
+    ...
+}
