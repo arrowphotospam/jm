@@ -1,0 +1,203 @@
+COLLECTION GENERIC LIST
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+
+public class Program
+{
+    public static EmployeeManager employeeManager = new EmployeeManager();
+
+    public static void Main(string[] args)
+    {
+        while (true)
+        {
+            Console.WriteLine("\nMenu:");
+            Console.WriteLine("1. Add Employee");
+            Console.WriteLine("2. Display Employees");
+            Console.WriteLine("3. Search Employee by ID");
+            Console.WriteLine("4. Delete Employee");
+            Console.WriteLine("5. Update Employee");
+            Console.WriteLine("6. Exit");
+            Console.Write("Enter your choice: ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Enter Employee ID: ");
+                    if (!int.TryParse(Console.ReadLine(), out int id))
+                    {
+                        Console.WriteLine("Invalid ID. Please enter a number.");
+                        break;
+                    }
+
+                    Console.Write("Enter Employee Name: ");
+                    string name = Console.ReadLine();
+
+                    Console.Write("Enter Age: ");
+                    if (!int.TryParse(Console.ReadLine(), out int age))
+                    {
+                        Console.WriteLine("Invalid Age. Please enter a number.");
+                        break;
+                    }
+
+                    Console.Write("Enter Gender: ");
+                    string gender = Console.ReadLine();
+
+                    Console.Write("Enter Phone Number: ");
+                    string phoneNumber = Console.ReadLine();
+
+                    Employee employee = new Employee
+                    {
+                        EmployeeId = id,
+                        EmployeeName = name,
+                        Age = age,
+                        Gender = gender,
+                        PhoneNumber = phoneNumber,
+                    };
+
+                    employeeManager.AddEmployee(employee);
+                    break;
+
+                case "2":
+                    employeeManager.DisplayEmployees();
+                    break;
+
+                case "3":
+                    Console.Write("Enter Employee ID to search: ");
+                    int searchId = int.Parse(Console.ReadLine());
+                    employeeManager.SearchEmployeeById(searchId);
+                    break;
+
+                case "4":
+                    Console.Write("Enter Employee ID to delete: ");
+                    int deleteId = int.Parse(Console.ReadLine());
+                    employeeManager.DeleteEmployee(deleteId);
+                    break;
+
+                case "5":
+                    Console.Write("Enter Employee ID to update: ");
+                    int updateId = int.Parse(Console.ReadLine());
+                    employeeManager.UpdateEmployee(updateId);
+                    break;
+
+                case "6":
+                    Console.WriteLine("Exiting program...");
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid choice, please try again.");
+                    break;
+            }
+        }
+    }
+}
+
+public class EmployeeManager
+{
+    public List<Employee> Employees = new List<Employee>();
+
+    public void AddEmployee(Employee emp)
+    {
+        foreach (var existingEmployee in Employees)
+        {
+            if (existingEmployee.EmployeeId == emp.EmployeeId)
+            {
+                Console.WriteLine($"An employee with ID {emp.EmployeeId} already exists.");
+                return;
+            }
+        }
+
+        Employees.Add(emp);
+        Console.WriteLine("Employee added successfully.");
+    }
+
+    public void DisplayEmployees()
+    {
+        if (Employees.Count == 0)
+        {
+            Console.WriteLine("No employees available.");
+            return;
+        }
+
+        Console.WriteLine("\nEmployee List:");
+        foreach (var emp in Employees)
+        {
+            emp.DisplayEmployeeDetails();
+        }
+    }
+
+    public void SearchEmployeeById(int id)
+    {
+        var employee = Employees.Find(e => e.EmployeeId == id);
+        if (employee != null)
+        {
+            employee.DisplayEmployeeDetails();
+        }
+        else
+        {
+            Console.WriteLine("Employee not found.");
+        }
+    }
+
+    public void DeleteEmployee(int id)
+    {
+        var employee = Employees.Find(e => e.EmployeeId == id);
+        if (employee != null)
+        {
+            Employees.Remove(employee);
+            Console.WriteLine("Employee deleted successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Employee not found.");
+        }
+    }
+
+    public void UpdateEmployee(int id)
+    {
+        var employee = Employees.Find(e => e.EmployeeId == id);
+        if (employee != null)
+        {
+            Console.Write("Enter new name: ");
+            employee.EmployeeName = Console.ReadLine();
+
+            Console.Write("Enter new age: ");
+            employee.Age = int.Parse(Console.ReadLine());
+
+            Console.Write("Enter new gender: ");
+            employee.Gender = Console.ReadLine();
+
+            Console.Write("Enter new phone number: ");
+            employee.PhoneNumber = Console.ReadLine();
+
+            Console.WriteLine("Employee updated successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Employee not found.");
+        }
+    }
+}
+
+public class Employee
+{
+    public int EmployeeId { get; set; }
+    public string EmployeeName { get; set; }
+    public int Age { get; set; }
+    public string Gender { get; set; }
+    public string PhoneNumber { get; set; }
+
+    public Employee() { }
+
+    public void DisplayEmployeeDetails()
+    {
+        Console.WriteLine($"Employee ID: {EmployeeId}, Name: {EmployeeName}, Age: {Age}, Gender: {Gender}, Phone: {PhoneNumber}");
+    }
+}
